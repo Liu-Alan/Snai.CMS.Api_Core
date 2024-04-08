@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snai.CMS.Api-Core", "Snai.CMS.Api-Core\Snai.CMS.Api-Core.csproj", "{F6A1BCD2-D475-47E9-BE1C-8487A0BA9E53}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6A1BCD2-D475-47E9-BE1C-8487A0BA9E53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6A1BCD2-D475-47E9-BE1C-8487A0BA9E53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6A1BCD2-D475-47E9-BE1C-8487A0BA9E53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6A1BCD2-D475-47E9-BE1C-8487A0BA9E53}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {415B3072-BB34-46D3-B644-C9AC6D049D39}
+	EndGlobalSection
+EndGlobal
