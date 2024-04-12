@@ -53,7 +53,7 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Jwt
         {
             var claims = new[]
             {
-                new Claim("UserName", userName)
+                new Claim(ClaimTypes.Name, userName)
             };
 
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Value.Secret));
@@ -70,6 +70,34 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Jwt
 
             var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             return token;
+        }
+
+        public class JwtUserInfo
+        {
+            public string UserName { get; set; }
+        }
+
+        /// <summary>
+        /// 将JWT加密的字符串进行解析
+        /// </summary>
+        /// <param name="jwtStr">JWT加密的字符</param>
+        /// <returns>JWT中的用户信息</returns>
+        public JwtUserInfo SerializeJwtStr(string jwtStr)
+        {
+            JwtUserInfo jwtUserInfo = new JwtUserInfo();
+            var jwtHandler = new JwtSecurityTokenHandler();
+
+            if (!string.IsNullOrEmpty(jwtStr) && jwtHandler.CanReadToken(jwtStr))
+            {
+                //将JWT字符读取到JWT对象
+                JwtPayload jwtPayload = jwtHandler.ReadJwtToken(jwtStr).Payload;
+
+                //获取JWT中的用户信息
+                string? UserName = jwtPayload.Claims.FirstOrDefault(r => r.Type == ClaimTypes.Name)?.Value; 
+                jwtUserInfo.UserName = UserName == null ? "" : UserName;
+            }
+
+            return jwtUserInfo;
         }
     }
 }
