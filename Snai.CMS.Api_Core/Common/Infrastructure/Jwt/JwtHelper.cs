@@ -74,7 +74,7 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Jwt
 
         public class JwtUserInfo
         {
-            public string UserName { get; set; }
+            public string? UserName { get; set; }
         }
 
         /// <summary>

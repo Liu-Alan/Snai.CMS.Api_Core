@@ -99,7 +99,7 @@ namespace Snai.CMS.Api_Core.Business
         #region 用户登录
 
         //用户登录
-        public (Admin, Message) AdminLogin(string userName,string password,string ip)
+        public (Admin, Message) AdminLogin(string userName, string password, string ip)
         {
             var msg = new Message((int)Code.Success, _consts.GetMsg(Code.Success));
 
@@ -185,7 +185,7 @@ namespace Snai.CMS.Api_Core.Business
                     msg.Code = (int)Code.Error;
                     msg.Msg = $"帐号或密码错误，如在{_logonSettings.Value.ErrorTime}分钟内，错误{_logonSettings.Value.ErrorCount}次，将锁定帐号{_logonSettings.Value.LockMinute}分钟";
                     return (null, msg);
-                }    
+                }
             }
 
             //更新账号登录信息
@@ -204,7 +204,6 @@ namespace Snai.CMS.Api_Core.Business
 
         #region 角色管理
 
-        //取账号
         public Role GetRole(int id)
         {
             if (id <= 0)
@@ -223,5 +222,188 @@ namespace Snai.CMS.Api_Core.Business
         }
 
         #endregion
+
+        #region Token管理
+
+        public Message AddToken(Token token)
+        {
+            var msg = new Message((int)Code.Success, _consts.GetMsg(Code.Success));
+
+            if (token != null && string.IsNullOrEmpty(token.TokenStr))
+            {
+                var state = _cmsDao.AddToken(token);
+                if (state.Result)
+                {
+                    return msg;
+                }
+                else
+                {
+                    msg.Code = (int)Code.InvalidParams;
+                    msg.Msg = "保存Token失败";
+                    return msg;
+                }
+            }
+            else
+            {
+                msg.Code = (int)Code.InvalidParams;
+                msg.Msg = "保存Token失败";
+                return msg;
+            }
+        }
+
+        public Message ModifyToken(Token token)
+        {
+            var msg = new Message((int)Code.Success, _consts.GetMsg(Code.Success));
+
+            if (token != null && token.ID>0)
+            {
+                var state = _cmsDao.ModifyToken(token);
+                if (state.Result)
+                {
+                    return msg;
+                }
+                else
+                {
+                    msg.Code = (int)Code.InvalidParams;
+                    msg.Msg = "Tokek修改失败";
+                    return msg;
+                }
+            }
+            else
+            {
+                msg.Code = (int)Code.InvalidParams;
+                msg.Msg = "Tokek不存在";
+                return msg;
+            }
+        }
+
+        public Token GetToken(string tokenStr)
+        {
+            if (string.IsNullOrEmpty(tokenStr))
+            {
+                return null;
+            }
+            var token = _cmsDao.GetToken(tokenStr);
+            if (token != null && token.Result.ID > 0)
+            {
+                return token.Result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region 模块管理
+
+        public Module GetModule(string router)
+        {
+            if (string.IsNullOrEmpty(router))
+            {
+                return null;
+            }
+            var module = _cmsDao.GetModule(router);
+            if (module != null && module.Result.ID > 0)
+            {
+                return module.Result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region 权限管理
+
+        // 取权限
+        public RoleModule GetRoleModule(int roleID, int moduleID)
+        {
+            if (roleID<=0 || moduleID<=0)
+            {
+                return null;
+            }
+            var roleModule = _cmsDao.GetRoleModule(roleID, moduleID);
+            if (roleModule != null && roleModule.Result.ID > 0)
+            {
+                return roleModule.Result;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        // 判断权限
+        public Message VerifyUserRole(string userName,string router)
+        {
+            var msg = new Message((int)Code.Success, _consts.GetMsg(Code.Success));
+
+            var admin = GetAdmin(userName);
+            if (admin == null || admin.ID <= 0)
+            {
+                msg.Code = (int)Code.RecordNotFound;
+                msg.Msg = "账号不存在";
+                return msg;
+            }
+
+            if (admin.State == 2)
+            {
+                msg.Code = (int)Code.RecordNotFound;
+                msg.Msg = "账号已禁用";
+                return msg;
+            }
+
+            var role = GetRole(admin.RoleID);
+            if (role == null || role.ID <= 0)
+            {
+                msg.Code = (int)Code.RecordNotFound;
+                msg.Msg = "角色不存在";
+                return msg;
+            }
+
+            if (role.State == 2)
+            {
+                msg.Code = (int)Code.RecordNotFound;
+                msg.Msg = "角色已禁用";
+                return msg;
+            }
+
+            var module = GetModule(router);
+            if (module == null || module.ID <= 0)
+            {
+                msg.Code = (int)Code.RecordNotFound;
+                msg.Msg = "模块不存在";
+                return msg;
+            }
+
+            if (module.State == 2)
+            {
+                msg.Code = (int)Code.RecordNotFound;
+                msg.Msg = "模块已禁用";
+                return msg;
+            }
+
+            // 为-1不验证权限
+            if (module.ParentID == -1)
+            {
+                return msg;
+            }
+
+            var roleModule = GetRoleModule(role.ID, module.ID);
+            if (roleModule == null || roleModule.ID <= 0)
+            {
+                msg.Code = (int)Code.PermissionFailed;
+                msg.Msg = _consts.GetMsg(Code.PermissionFailed);
+                return msg;
+            }
+
+            return msg;
+        }
+
+        #endregion  
     }
 }

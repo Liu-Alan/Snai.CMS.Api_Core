@@ -16,6 +16,7 @@
         AuthCheckTimeout = 10002,
         AuthCheckFail = 10003,
         AuthFormatFail = 10004,
+
         RecordNotFound = 20000
     }
 
@@ -37,6 +38,7 @@
             { (int)Code.AuthCheckTimeout,"Authorization超时"},
             { (int)Code.AuthCheckFail,"校验Authorization失败"},
             { (int)Code.AuthFormatFail,"Authorization格式错误"},
+
             { (int)Code.RecordNotFound,"记录不存在"},
         };
 

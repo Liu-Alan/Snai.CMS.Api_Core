@@ -33,7 +33,7 @@ namespace Snai.CMS.Api_Core.DataAccess
         public async Task<bool> ModifyAdmin(Admin admin)
         {
             var upState = false;
-            var upAdmin = _cmsContext.Admins.SingleOrDefault(s => s.ID == admin.ID);
+            var upAdmin = _cmsContext.Admins.FirstOrDefault(s => s.ID == admin.ID);
             if (upAdmin != null && admin.ID > 0)
             {
                 upAdmin.UserName = admin.UserName;
@@ -63,6 +63,62 @@ namespace Snai.CMS.Api_Core.DataAccess
         {
             return await _cmsContext.Roles.FirstOrDefaultAsync(s => s.ID == id);
         }
+
+        #endregion
+
+        #region Token管理
+
+        // 添加Token
+        public async Task<bool> AddToken(Token token)
+        {
+            await _cmsContext.Tokens.AddAsync(token);
+            return await _cmsContext.SaveChangesAsync() > 0;
+        }
+
+        //修改Token
+        public async Task<bool> ModifyToken(Token token)
+        {
+            var upState = false;
+            var upToken = _cmsContext.Tokens.FirstOrDefault(s => s.ID == token.ID);
+            if (upToken != null && upToken.ID > 0)
+            {
+                upToken.TokenStr = token.TokenStr;
+                upToken.UserID = token.UserID;
+                upToken.State = token.State;
+                upToken.CreateTime = token.CreateTime;
+
+                return await _cmsContext.SaveChangesAsync() > 0;
+            }
+
+            return upState;
+        }
+
+        //取Token
+        public async Task<Token> GetToken(string tokenStr)
+        {
+            return await _cmsContext.Tokens.FirstOrDefaultAsync(s => s.TokenStr == tokenStr);
+        }
+
+        #endregion
+
+        #region 模块管理
+
+        //取模块
+        public async Task<Module> GetModule(string router)
+        {
+            return await _cmsContext.Modules.FirstOrDefaultAsync(s => s.Router == router);
+        }
+
+        #endregion
+
+        #region 权限管理
+
+        //取模块
+        public async Task<RoleModule> GetRoleModule(int roleID, int moduleID)
+        {
+            return await _cmsContext.RoleModules.FirstOrDefaultAsync(s => s.RoleID == roleID && s.ModuleID == moduleID);
+        }
+
         #endregion
     }
 }
