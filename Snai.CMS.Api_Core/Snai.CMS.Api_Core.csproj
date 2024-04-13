@@ -16,8 +16,4 @@
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Common\Infrastructure\Auth\" />
-  </ItemGroup>
-
 </Project>

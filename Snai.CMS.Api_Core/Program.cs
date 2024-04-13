@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic.FileIO;
@@ -5,6 +6,7 @@ using Serilog;
 using Serilog.Events;
 using Snai.CMS.Api_Core.Business;
 using Snai.CMS.Api_Core.Common.Infrastructure;
+using Snai.CMS.Api_Core.Common.Infrastructure.Auth;
 using Snai.CMS.Api_Core.Common.Infrastructure.Jwt;
 using Snai.CMS.Api_Core.DataAccess;
 using Snai.CMS.Api_Core.Entities.Settings;
@@ -55,6 +57,13 @@ try
     // 注册jwt
     builder.Services.AddSingleton<JwtHelper>();     // JwtHelper 生成token等
     builder.Services.AddJwt();                      // 验证token
+
+    builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+    builder.Services.AddSingleton(permissionRequirement);
+
+    builder.Services.AddAuthorization(option => {
+        option.AddPolicy("Permission", policy => policy.AddRequirements(permissionRequirement));
+    });
 
     var app = builder.Build();
 
