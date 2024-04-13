@@ -58,9 +58,10 @@ try
     builder.Services.AddSingleton<JwtHelper>();     // JwtHelper 生成token等
     builder.Services.AddJwt();                      // 验证token
 
+    // 注册权限判断
+    var permissionRequirement = new PermissionRequirement();
     builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
     builder.Services.AddSingleton(permissionRequirement);
-
     builder.Services.AddAuthorization(option => {
         option.AddPolicy("Permission", policy => policy.AddRequirements(permissionRequirement));
     });
