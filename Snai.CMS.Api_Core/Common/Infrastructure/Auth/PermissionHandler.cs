@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Snai.CMS.Api_Core.Business;
+using Snai.CMS.Api_Core.Common.Infrastructure.Extension;
 using Snai.CMS.Api_Core.Controllers;
 using Snai.CMS.Api_Core.DataAccess;
 using Snai.CMS.Api_Core.Entities.Settings;
@@ -11,16 +12,21 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Auth
 {
     public class PermissionHandler: AuthorizationHandler<PermissionRequirement>
     {
+        private readonly ILogger<HomeController> _logger;
+        HttpContextExtension _httpContext;
         CMSBO _cmsBO;
 
-        public PermissionHandler(CMSBO cmsBO)
+        public PermissionHandler(ILogger<HomeController> logger, CMSBO cmsBO, HttpContextExtension httpContext)
         {
             _cmsBO = cmsBO;
+            _httpContext = httpContext;
+            _logger = logger;
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
             // 取token,验证是否退出
+            /*
             var request = context.Resource as HttpRequest;
             if (!request.Headers.TryGetValue("Authorization", out var tokenBearer))
             {
@@ -43,6 +49,15 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Auth
             }
 
             var tokenStr = tokenArrays[1];
+            */
+            var tokenStr = _httpContext.GetToken();
+            if (string.IsNullOrEmpty(tokenStr))
+            {
+                _logger.LogError("取Token失败，请检查Headers.Authorization");
+                context.Fail();
+                return;
+            }
+
             var token = _cmsBO.GetToken(tokenStr);
             if (token == null || token.State == 2) 
             {

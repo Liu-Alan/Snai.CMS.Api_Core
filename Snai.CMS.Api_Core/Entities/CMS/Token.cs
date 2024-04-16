@@ -10,7 +10,7 @@ namespace Snai.CMS.Api_Core.Entities.CMS
         {
             ID = 0;
             TokenStr = "";
-            UserID = "";
+            UserID = 0;
             State = 1;
             CreateTime = 0;
         }
@@ -23,7 +23,7 @@ namespace Snai.CMS.Api_Core.Entities.CMS
         public string TokenStr { get; set; }
 
         [Column("user_id")]
-        public string UserID { get; set; }
+        public int UserID { get; set; }
 
         [Column("state")]
         public short State { get; set; }

@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualBasic.FileIO;
 using Serilog;
 using Serilog.Events;
 using Snai.CMS.Api_Core.Business;
 using Snai.CMS.Api_Core.Common.Infrastructure;
 using Snai.CMS.Api_Core.Common.Infrastructure.Auth;
+using Snai.CMS.Api_Core.Common.Infrastructure.Extension;
+using Snai.CMS.Api_Core.Common.Infrastructure.Filters;
 using Snai.CMS.Api_Core.Common.Infrastructure.Jwt;
 using Snai.CMS.Api_Core.DataAccess;
 using Snai.CMS.Api_Core.Entities.Settings;
@@ -34,7 +37,8 @@ try
         .Enrich.FromLogContext()
     );  
 
-    builder.Services.AddControllers();
+    // 加注入验证参数过滤器
+    builder.Services.AddControllers(options => options.Filters.Add<ValidParamsFilter>());
 
     // 注册配置
     builder.Services.Configure<LogonSettings>(builder.Configuration.GetSection(nameof(LogonSettings)));
@@ -43,6 +47,12 @@ try
 
     // 注册全局变量
     builder.Services.AddSingleton<Consts>();
+
+    //注册HttpContext，用于在Controller之外的地方使用
+    builder.Services.AddHttpContextAccessor();
+
+    // 注册基础工具
+    builder.Services.AddScoped<HttpContextExtension>();
 
     // 注册数据库连接
     var connectionString = builder.Configuration.GetConnectionString("MySQL");
