@@ -1,4 +1,6 @@
-﻿namespace Snai.CMS.Api_Core.Common.Infrastructure.Extension
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Snai.CMS.Api_Core.Common.Infrastructure.Extension
 {
     public class HttpContextExtension
     {
@@ -38,6 +40,13 @@
             return tokenArrays[1];
         }
 
+        // 取路由
+        public string GetRouterPath()
+        {
+            var path = (Context.Request.Path.Value ?? "").ToLower();
+            return path;
+        }
+
         // 取客户端IP
         public string GetUserIP()
         {
@@ -47,6 +56,12 @@
                 ip = Context.Connection.RemoteIpAddress.ToString();
             }
             return ip;
+        }
+
+        // http输出
+        public void OutHttpResult(Message msg)
+        {
+            Context.Response.WriteAsJsonAsync(msg);
         }
 
         #endregion

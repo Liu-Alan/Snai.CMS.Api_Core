@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using Snai.CMS.Api_Core.Business;
 using Snai.CMS.Api_Core.Common.Infrastructure;
@@ -20,12 +22,14 @@ namespace Snai.CMS.Api_Core.Controllers
         private readonly ILogger<HomeController> _logger;
         HttpContextExtension _httpContext;
         JwtHelper _jwtHelper;
+        Consts _consts;
         CMSBO _cmsBO;
-        public HomeController(ILogger<HomeController> logger, HttpContextExtension httpContext, CMSBO cmsBO, JwtHelper jwtHelper)
+        public HomeController(ILogger<HomeController> logger, HttpContextExtension httpContext, JwtHelper jwtHelper, CMSBO cmsBO,Consts consts)
         {
             _logger = logger;
             _httpContext = httpContext;
             _jwtHelper = jwtHelper;
+            _consts = consts;
             _cmsBO = cmsBO;
         }
 
@@ -35,7 +39,7 @@ namespace Snai.CMS.Api_Core.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            return Ok(new { Id = 1, Value = "service run" });
+            return Ok(new Message() { Code = (int)Code.Success, Msg = _consts.GetMsg(Code.Success) });
         }
 
         #region 登录 登出 修改密码
@@ -75,7 +79,7 @@ namespace Snai.CMS.Api_Core.Controllers
                     }
                     else
                     {
-                        msg.Result = new LoginOut() { Token = token };
+                        msg.Result.Data = new LoginOut() { Token = token };
                         return msg;
                     }
                 }
@@ -90,6 +94,7 @@ namespace Snai.CMS.Api_Core.Controllers
         [Authorize(Policy = "Permission")]
         public Message Logout()
         {
+            _logger.LogInformation($"logout-start");
             var tokenStr = _httpContext.GetToken();
             if (string.IsNullOrEmpty(tokenStr)) 
             {

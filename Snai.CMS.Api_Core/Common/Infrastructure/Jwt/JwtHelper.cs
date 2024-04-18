@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Snai.CMS.Api_Core.Controllers;
 using Snai.CMS.Api_Core.Entities.Settings;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -39,12 +40,46 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Jwt
             {
                 //终止默认的返回结果(必须有)
                 context.HandleResponse();
-                var result = JsonConvert.SerializeObject(new { Code = "401", Message = "验证失败" });
-                context.Response.ContentType = "application/json";
-                //验证失败返回401
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                context.Response.WriteAsync(result);
-                return Task.FromResult(0);
+                try
+                {
+                    var result = JsonConvert.SerializeObject(new { Code = "401", Message = "Token验证失败Challenge" });
+                    context.Response.ContentType = "application/json";
+                    //验证失败返回401
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.WriteAsync(result);
+                }
+                catch(Exception e)
+                { }
+                //return Task.FromResult(0);
+                return Task.CompletedTask;
+            },
+            OnForbidden = context =>
+            {
+                try
+                {
+                    var result = JsonConvert.SerializeObject(new { Code = "403", Message = "Token验证失败Forbidden" });
+                    context.Response.ContentType = "application/json";
+                    //验证失败返回403
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    context.Response.WriteAsync(result);
+                }
+                catch (Exception e)
+                { }
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                try
+                {
+                    var result = JsonConvert.SerializeObject(new { Code = "401", Message = "Token验证失败Authentication" });
+                    context.Response.ContentType = "application/json";
+                    //验证失败返回401
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.WriteAsync(result);
+                }
+                catch (Exception e)
+                { }
+                return Task.CompletedTask;
             }
         };
 
@@ -93,7 +128,7 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Jwt
                 JwtPayload jwtPayload = jwtHandler.ReadJwtToken(jwtStr).Payload;
 
                 //获取JWT中的用户信息
-                string? UserName = jwtPayload.Claims.FirstOrDefault(r => r.Type == ClaimTypes.Name)?.Value; 
+                string? UserName = jwtPayload.Claims.FirstOrDefault(r => r.Type == ClaimTypes.Name)?.Value;
                 jwtUserInfo.UserName = UserName == null ? "" : UserName;
             }
 

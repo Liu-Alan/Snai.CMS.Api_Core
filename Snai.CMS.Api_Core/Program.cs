@@ -70,7 +70,7 @@ try
 
     // ×¢²áÈ¨ÏÞÅÐ¶Ï
     var permissionRequirement = new PermissionRequirement();
-    builder.Services.AddSingleton<IAuthorizationHandler, PermissionHandler>();
+    builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
     builder.Services.AddSingleton(permissionRequirement);
     builder.Services.AddAuthorization(option => {
         option.AddPolicy("Permission", policy => policy.AddRequirements(permissionRequirement));

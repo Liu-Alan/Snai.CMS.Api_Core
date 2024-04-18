@@ -15,7 +15,7 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Jwt
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.TokenValidationParameters = jwtHelper.TokenValidationParameters;
                 options.Events = jwtHelper.JwtBearerEvents;

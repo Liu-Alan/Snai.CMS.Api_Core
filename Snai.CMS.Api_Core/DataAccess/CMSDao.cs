@@ -42,7 +42,7 @@ namespace Snai.CMS.Api_Core.DataAccess
                 upAdmin.State = admin.State;
                 upAdmin.CreateTime = admin.CreateTime;
                 upAdmin.UpdateTime = admin.UpdateTime;
-                upAdmin.LastLogonTime = admin.UpdateTime;
+                upAdmin.LastLogonTime = admin.LastLogonTime;
                 upAdmin.LastLogonIP = admin.LastLogonIP;
                 upAdmin.ErrorLogonTime = admin.ErrorLogonTime;
                 upAdmin.ErrorLogonCount = admin.ErrorLogonCount;

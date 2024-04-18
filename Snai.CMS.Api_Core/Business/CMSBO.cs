@@ -229,7 +229,7 @@ namespace Snai.CMS.Api_Core.Business
         {
             var msg = new Message((int)Code.Success, _consts.GetMsg(Code.Success));
 
-            if (token != null && string.IsNullOrEmpty(token.TokenStr))
+            if (token != null && !string.IsNullOrEmpty(token.TokenStr))
             {
                 var state = _cmsDao.AddToken(token);
                 if (state.Result)
@@ -239,14 +239,14 @@ namespace Snai.CMS.Api_Core.Business
                 else
                 {
                     msg.Code = (int)Code.InvalidParams;
-                    msg.Msg = "保存Token失败";
+                    msg.Msg = "DB保存Token失败";
                     return msg;
                 }
             }
             else
             {
                 msg.Code = (int)Code.InvalidParams;
-                msg.Msg = "保存Token失败";
+                msg.Msg = "保存Token失败 token 为空";
                 return msg;
             }
         }
@@ -258,7 +258,7 @@ namespace Snai.CMS.Api_Core.Business
             if (token != null && token.ID>0)
             {
                 var state = _cmsDao.ModifyToken(token);
-                if (state.Result)
+                if (state != null && state.Result)
                 {
                     return msg;
                 }
@@ -284,7 +284,7 @@ namespace Snai.CMS.Api_Core.Business
                 return null;
             }
             var token = _cmsDao.GetToken(tokenStr);
-            if (token != null && token.Result.ID > 0)
+            if (token != null && token.Result != null && token.Result.ID > 0)
             {
                 return token.Result;
             }

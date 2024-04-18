@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Collections;
 
 namespace Snai.CMS.Api_Core.Common.Infrastructure.Filters
 {
@@ -12,30 +13,32 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Filters
             _consts = consts;
         }
 
-        public override void OnActionExecuting(ActionExecutingContext context)
+        public override void OnResultExecuting(ResultExecutingContext context)
         {
             if (!context.ModelState.IsValid)
             {
                 var msg = new Message((int)Code.ValidParamsError, _consts.GetMsg(Code.ValidParamsError));
-
+                ArrayList errorMsg = new ArrayList();
                 foreach (var item in context.ModelState.Values)
                 {
                     foreach (var error in item.Errors)
                     {
-                        msg.Msg += error.ErrorMessage + "\n";
+                        errorMsg.Add(error.ErrorMessage);
                     }
                 }
-                msg.Msg = msg.Msg.TrimEnd('\n');
+                msg.Result.Data = errorMsg;
                 context.Result = new JsonResult(msg);
                 return;
             }
             else
             {
-                context.Result = new OkObjectResult(new Message((int)Code.Success, _consts.GetMsg(Code.Success)));
-
-                base.OnActionExecuting(context);    
-
+                base.OnResultExecuting(context);
             }
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+
         }
     }
 }

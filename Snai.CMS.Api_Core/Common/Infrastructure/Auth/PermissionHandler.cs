@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Snai.CMS.Api_Core.Business;
@@ -14,74 +16,60 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Auth
     {
         private readonly ILogger<HomeController> _logger;
         HttpContextExtension _httpContext;
+        Consts _consts;
         CMSBO _cmsBO;
 
-        public PermissionHandler(ILogger<HomeController> logger, CMSBO cmsBO, HttpContextExtension httpContext)
+        public PermissionHandler(ILogger<HomeController> logger, HttpContextExtension httpContext, Consts consts, CMSBO cmsBO)
         {
             _cmsBO = cmsBO;
             _httpContext = httpContext;
+            _consts = consts;
             _logger = logger;
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            // 取token,验证是否退出
-            /*
-            var request = context.Resource as HttpRequest;
-            if (!request.Headers.TryGetValue("Authorization", out var tokenBearer))
+            // 取token和router验证权限
+            // 是否经过验证
+            var isAuthenticated = context.User.Identity.IsAuthenticated;
+            if (isAuthenticated)
             {
-                context.Fail();
-                return; 
-            }
-
-            var tokenBearerStr = tokenBearer.ToString();
-            if (!tokenBearerStr.StartsWith("Bearer"))
-            {
-                context.Fail();
-                return;
-            }
-
-            var tokenArrays = tokenBearerStr.Split(" ");
-            if (tokenArrays == null || tokenArrays.Length != 2)
-            {
-                context.Fail();
-                return;
-            }
-
-            var tokenStr = tokenArrays[1];
-            */
-            var tokenStr = _httpContext.GetToken();
-            if (string.IsNullOrEmpty(tokenStr))
-            {
-                _logger.LogError("取Token失败，请检查Headers.Authorization");
-                context.Fail();
-                return;
-            }
-
-            var token = _cmsBO.GetToken(tokenStr);
-            if (token == null || token.State == 2) 
-            {
-                context.Fail();
-                return;
-            }
-
-            // 验证权限
-            var resource = ((Microsoft.AspNetCore.Routing.RouteEndpoint)context.Resource).RoutePattern;
-
-            foreach (var tc in context.User.Identities)
-            {
-                foreach(var claim in tc.Claims)
+                var tokenStr = _httpContext.GetToken();
+                if (string.IsNullOrEmpty(tokenStr))
                 {
-                    if (claim.Type == ClaimTypes.Name)
-                    { 
-                        var userName = claim.Value;
-                        var router = (resource.RawText??"").ToLower();
+                    context.Fail();
+                    var msg = new Message() { Code = (int)Code.AuthNotExist, Msg = _consts.GetMsg(Code.AuthNotExist) };
+                    _httpContext.OutHttpResult(msg);
+                    return;
+                }
 
-                        var msg = _cmsBO.VerifyUserRole(userName, router);
-                        if (msg.Code == (int)Code.Success) 
+                var token = _cmsBO.GetToken(tokenStr);
+                if (token == null || token.State == 2)
+                {
+                    context.Fail();
+                    var msg = new Message() { Code = (int)Code.AuthCheckFail, Msg = _consts.GetMsg(Code.AuthCheckFail) };
+                    _httpContext.OutHttpResult(msg);
+                    return;
+                }
+
+                // 验证权限
+                //var resource = ((Microsoft.AspNetCore.Routing.RouteEndpoint)context.Resource).RoutePattern;
+
+                foreach (var tc in context.User.Identities)
+                {
+                    foreach (var claim in tc.Claims)
+                    {
+                        if (claim.Type == ClaimTypes.Name)
                         {
-                            context.Succeed(requirement);
-                            return;
+                            var userName = claim.Value;
+                            var router = _httpContext.GetRouterPath(); //(resource.RawText??"").ToLower();
+
+                            var msg = _cmsBO.VerifyUserRole(userName, router);
+                            if (msg.Code == (int)Code.Success)
+                            {
+                                context.Succeed(requirement);
+                                return;
+                            }
                         }
                     }
                 }
