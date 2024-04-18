@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualBasic.FileIO;
 using Serilog;
@@ -11,6 +12,7 @@ using Snai.CMS.Api_Core.Common.Infrastructure.Auth;
 using Snai.CMS.Api_Core.Common.Infrastructure.Extension;
 using Snai.CMS.Api_Core.Common.Infrastructure.Filters;
 using Snai.CMS.Api_Core.Common.Infrastructure.Jwt;
+using Snai.CMS.Api_Core.Common.Infrastructure.Middleware;
 using Snai.CMS.Api_Core.DataAccess;
 using Snai.CMS.Api_Core.Entities.Settings;
 
@@ -35,7 +37,7 @@ try
         .ReadFrom.Configuration(context.Configuration) //读配置
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
-    );  
+    );
 
     // 加注入验证参数过滤器
     builder.Services.AddControllers(options => options.Filters.Add<ValidParamsFilter>());
@@ -72,7 +74,8 @@ try
     var permissionRequirement = new PermissionRequirement();
     builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
     builder.Services.AddSingleton(permissionRequirement);
-    builder.Services.AddAuthorization(option => {
+    builder.Services.AddAuthorization(option =>
+    {
         option.AddPolicy("Permission", policy => policy.AddRequirements(permissionRequirement));
     });
 
@@ -82,6 +85,19 @@ try
 
     app.UseAuthentication(); // 认证
     app.UseAuthorization();  // 授权
+
+    // 静态文件权限认证
+    app.UseWhen(context => context.Request.Path.Value.Contains("/api/static"),
+                _ => _.UseMiddleware<AuthorizeStaticFilesMiddleware>());
+    // 静态文件
+    app.UseStaticFiles(new StaticFileOptions()
+    {
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "text/plain",
+        FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"storage/file")),   //实际目录地址
+        RequestPath = new Microsoft.AspNetCore.Http.PathString("/api/static"),  //用户访问地址
+    });
+    
 
     app.MapControllers();
 
