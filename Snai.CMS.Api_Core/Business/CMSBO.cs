@@ -16,7 +16,7 @@ namespace Snai.CMS.Api_Core.Business
         #region 属性声明
 
         IOptions<LogonSettings> _logonSettings;
-        IOptions<PwdSaltSettings> _pwdSaltSettings;
+        IOptions<WebSettings> _webSettings;
         private readonly ILogger<HomeController> _logger;
         Consts _consts;
         CMSDao _cmsDao;
@@ -25,10 +25,10 @@ namespace Snai.CMS.Api_Core.Business
 
         #region 构造函数
 
-        public CMSBO(IOptions<LogonSettings> logonSettings, IOptions<PwdSaltSettings> pwdSaltSettings, ILogger<HomeController> logger, Consts consts, CMSDao cmsDao)
+        public CMSBO(IOptions<LogonSettings> logonSettings, IOptions<WebSettings> webSettings, ILogger<HomeController> logger, Consts consts, CMSDao cmsDao)
         {
             _logonSettings = logonSettings;
-            _pwdSaltSettings = pwdSaltSettings;
+            _webSettings = webSettings;
             _logger = logger;
             _consts = consts;
             _cmsDao = cmsDao;
@@ -94,6 +94,45 @@ namespace Snai.CMS.Api_Core.Business
             }
         }
 
+        //取用户总数
+        public long GetAdminCount(string userName)
+        {
+            var userNameE = userName.Trim();
+            var count = _cmsDao.GetAdminCount(userNameE);
+            return count;
+        }
+
+        //取账号列表
+        public List<Admin> GetAdminList(string userName, int page, int pageSize)
+        {
+            userName = userName.Trim();
+            if (page <= 0)
+            {
+                page = 1;
+            }
+            if (pageSize <= 0)
+            {
+                pageSize = _webSettings.Value.DefaultPageSize;
+            }
+            if (pageSize > _webSettings.Value.MaxPageSize)
+            {
+                pageSize = _webSettings.Value.MaxPageSize;
+            }
+
+            var pageOffset = (page - 1) * pageSize;
+
+            var admins = _cmsDao.GetAdminList(userName, pageOffset, pageSize);
+            if (admins != null && admins.Count > 0)
+            {
+                foreach (var admin in admins)
+                {
+                    admin.Password = "";
+                }
+            }
+
+            return admins;
+        }
+
         #endregion
 
         #region 用户登录
@@ -151,7 +190,7 @@ namespace Snai.CMS.Api_Core.Business
                 return (null, msg);
             }
 
-            var pwd = EncryptMd5.EncryptByte(_pwdSaltSettings.Value.Salt + pwdE);
+            var pwd = EncryptMd5.EncryptByte(_webSettings.Value.Salt + pwdE);
             if (!admin.Password.Equals(pwd, StringComparison.OrdinalIgnoreCase))
             {
                 if (admin.ErrorLogonTime + (_logonSettings.Value.ErrorTime * 60) < nowTime)

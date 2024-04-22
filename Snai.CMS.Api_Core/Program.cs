@@ -45,7 +45,7 @@ try
     // 注册配置
     builder.Services.Configure<LogonSettings>(builder.Configuration.GetSection(nameof(LogonSettings)));
     builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
-    builder.Services.Configure<PwdSaltSettings>(builder.Configuration.GetSection(nameof(PwdSaltSettings)));
+    builder.Services.Configure<WebSettings>(builder.Configuration.GetSection(nameof(WebSettings)));
 
     // 注册全局变量
     builder.Services.AddSingleton<Consts>();

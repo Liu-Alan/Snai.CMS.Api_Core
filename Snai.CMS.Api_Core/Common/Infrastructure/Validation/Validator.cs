@@ -14,6 +14,7 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Validation
         private readonly static Regex EmailRegex = new(@"^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$", RegexOptions.Compiled);
         private readonly static Regex ChineseRegex = new(@"^[\u4e00-\u9fa5]{0,}$", RegexOptions.Compiled);
         private readonly static Regex LandlineRegex = new(@"^\d{3}-\d{8}|\d{4}-\d{7}|\d{7}$", RegexOptions.Compiled);
+        private readonly static Regex PositiveInteger = new(@"^\d+$", RegexOptions.Compiled);
 
         /// <summary>
         /// 是否是IPV4格式的IP
@@ -139,6 +140,15 @@ namespace Snai.CMS.Api_Core.Common.Infrastructure.Validation
         public static bool IsLandline(string input)
         {
             return LandlineRegex.IsMatch(input);
+        }
+
+        /// <summary>
+        /// 是否是正整数
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsPositiveInteger(string input)
+        {
+            return PositiveInteger.IsMatch(input);
         }
     }
 }

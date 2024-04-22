@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Snai.CMS.Api_Core.Entities.CMS;
 using System;
+using System.Linq;
 
 namespace Snai.CMS.Api_Core.DataAccess
 {
@@ -52,6 +53,34 @@ namespace Snai.CMS.Api_Core.DataAccess
             }
 
             return upState;
+        }
+
+        //取用户总数
+        public long GetAdminCount(string userName)
+        {
+            var admins =  _cmsContext.Admins.ToList();
+            if (!string.IsNullOrEmpty(userName))
+            {
+                admins = admins.Where(d => d.UserName.Contains(userName)).ToList();
+            }
+            return admins.Count; 
+        }
+
+        //取账号列表
+        public List<Admin> GetAdminList(string userName, int pageOffset, int pageSize)
+        {
+            var admins = _cmsContext.Admins.ToList();
+            if (!string.IsNullOrEmpty(userName))
+            {
+                admins = admins.Where(d => d.UserName.Contains(userName)).ToList();
+            }
+
+            if (pageOffset >= 0 && pageSize > 0)
+            {
+                admins = admins.Skip(pageOffset).Take(pageSize).ToList();
+            }
+
+            return admins;  
         }
 
         #endregion

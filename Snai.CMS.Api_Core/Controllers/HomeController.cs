@@ -24,15 +24,16 @@ namespace Snai.CMS.Api_Core.Controllers
 
         private readonly ILogger<HomeController> _logger;
         HttpContextExtension _httpContext;
-        IOptions<PwdSaltSettings> _pwdSaltSettings;
+        IOptions<WebSettings> _webSettings;
         JwtHelper _jwtHelper;
         Consts _consts;
         CMSBO _cmsBO;
-        public HomeController(ILogger<HomeController> logger, HttpContextExtension httpContext, IOptions<PwdSaltSettings> pwdSaltSettings, JwtHelper jwtHelper, CMSBO cmsBO,Consts consts)
+
+        public HomeController(ILogger<HomeController> logger, HttpContextExtension httpContext, IOptions<WebSettings> webSettings, JwtHelper jwtHelper, CMSBO cmsBO,Consts consts)
         {
             _logger = logger;
             _httpContext = httpContext;
-            _pwdSaltSettings = pwdSaltSettings;
+            _webSettings = webSettings;
             _jwtHelper = jwtHelper;
             _consts = consts;
             _cmsBO = cmsBO;
@@ -150,14 +151,14 @@ namespace Snai.CMS.Api_Core.Controllers
                 return msg;
             }
 
-            var pwd = EncryptMd5.EncryptByte(_pwdSaltSettings.Value.Salt + changePassword.OldPassword);
+            var pwd = EncryptMd5.EncryptByte(_webSettings.Value.Salt + changePassword.OldPassword);
             if (!admin.Password.Equals(pwd, StringComparison.OrdinalIgnoreCase))
             {
                 var msg = new Message() { Code = (int)Code.Error, Msg = "原密码错误" };
                 return msg;
             }
 
-            admin.Password = EncryptMd5.EncryptByte(_pwdSaltSettings.Value.Salt + changePassword.Password);
+            admin.Password = EncryptMd5.EncryptByte(_webSettings.Value.Salt + changePassword.Password);
             var msgM = _cmsBO.ModifyAdmin(admin);
             if (msgM.Code == (int)Code.Success) 
             {
