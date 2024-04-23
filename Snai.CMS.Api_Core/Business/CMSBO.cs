@@ -7,6 +7,7 @@ using Snai.CMS.Api_Core.Controllers;
 using Snai.CMS.Api_Core.DataAccess;
 using Snai.CMS.Api_Core.Entities.CMS;
 using Snai.CMS.Api_Core.Entities.Settings;
+using System.Data;
 using System.Runtime.CompilerServices;
 
 namespace Snai.CMS.Api_Core.Business
@@ -47,7 +48,7 @@ namespace Snai.CMS.Api_Core.Business
                 return null;
             }
             var admin = _cmsDao.GetAdmin(userNameE);
-            if (admin != null && admin.Result.ID > 0)
+            if (admin != null && admin.Result !=null && admin.Result.ID > 0)
             {
                 return admin.Result;
             }
@@ -103,7 +104,7 @@ namespace Snai.CMS.Api_Core.Business
         }
 
         //取账号列表
-        public List<Admin> GetAdminList(string userName, int page, int pageSize)
+        public (List<Admin>, int, int) GetAdminList(string userName, int page, int pageSize)
         {
             userName = userName.Trim();
             if (page <= 0)
@@ -130,7 +131,7 @@ namespace Snai.CMS.Api_Core.Business
                 }
             }
 
-            return admins;
+            return (admins, page, pageSize);
         }
 
         #endregion
@@ -250,7 +251,7 @@ namespace Snai.CMS.Api_Core.Business
                 return null;
             }
             var role = _cmsDao.GetRole(id);
-            if (role != null && role.Result.ID > 0)
+            if (role != null && role.Result != null && role.Result.ID > 0)
             {
                 return role.Result;
             }
@@ -344,7 +345,7 @@ namespace Snai.CMS.Api_Core.Business
                 return null;
             }
             var module = _cmsDao.GetModule(router);
-            if (module != null && module.Result.ID > 0)
+            if (module != null && module.Result != null && module.Result.ID > 0)
             {
                 return module.Result;
             }
@@ -366,7 +367,7 @@ namespace Snai.CMS.Api_Core.Business
                 return null;
             }
             var roleModule = _cmsDao.GetRoleModule(roleID, moduleID);
-            if (roleModule != null && roleModule.Result.ID > 0)
+            if (roleModule != null && roleModule.Result != null && roleModule.Result.ID > 0)
             {
                 return roleModule.Result;
             }

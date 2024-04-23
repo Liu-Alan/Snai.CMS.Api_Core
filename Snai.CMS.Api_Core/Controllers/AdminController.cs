@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Snai.CMS.Api_Core.Common.Encrypt;
 using Snai.CMS.Api_Core.Models;
 using System.Net.Http;
+using Snai.CMS.Api_Core.Entities.CMS;
 
 namespace Snai.CMS.Api_Core.Controllers
 {
@@ -34,17 +35,17 @@ namespace Snai.CMS.Api_Core.Controllers
 
         #region 取用户数
 
-        [HttpPost]
+        [HttpGet]
         [Authorize(Policy = "Permission")]
-        public Message List([FromForm] PageIn pageIn)
+        public Message List([FromQuery] PageIn pageIn)
         {
             var msg = new Message() { Code = (int)Code.Success, Msg = _consts.GetMsg(Code.Success) };
 
             var quiryTitle = pageIn.QuiryTitle ?? "";
-            var page = pageIn.Page ?? 1;
-            var pageSize = pageIn.PageSize ?? _webSettings.Value.DefaultPageSize;
+            var page = Convert.ToInt32(pageIn.Page ?? "1");
+            var pageSize = Convert.ToInt32(pageIn.PageSize ?? _webSettings.Value.DefaultPageSize.ToString());
 
-            var admins = _cmsBO.GetAdminList(quiryTitle, page, pageSize);
+            var (admins,pager, pageSizer) = _cmsBO.GetAdminList(quiryTitle, page, pageSize);
             if (admins == null || admins.Count <= 0)
             {
                 msg.Code = (int)Code.RecordNotFound;
@@ -52,7 +53,13 @@ namespace Snai.CMS.Api_Core.Controllers
                 return msg;
             }
 
-            msg.Result.Data = admins;
+            var pageResult = new PageOut<Admin>();
+            pageResult.PageList = admins;
+            pageResult.PageSize = pageSizer;
+            pageResult.Page = pager;
+            pageResult.Total = _cmsBO.GetAdminCount(quiryTitle);
+
+            msg.Result.Data = pageResult;
             return msg;
         }
     

@@ -10,12 +10,12 @@ namespace Snai.CMS.Api_Core.Models
         public string? QuiryTitle { get; set; }
 
         [ModelBinder(Name = "page")]
-        [PositiveIntegerAttribute(ErrorMessage = "页码须为数字")]
-        public int? Page { get; set; }
+        [PositiveInteger(ErrorMessage = "页码须为数字")]
+        public string? Page { get; set; }
 
         [ModelBinder(Name = "page_size")]
-        [PositiveIntegerAttribute(ErrorMessage = "每页数量须为数字")]
-        public int? PageSize { get; set; }
+        [PositiveInteger(ErrorMessage = "页码须为数字")]
+        public string? PageSize { get; set; }
         
     }
 
