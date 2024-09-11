@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+
+WORKDIR /app
+COPY ./ .
+
+RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+EXPOSE 80
+
+ENTRYPOINT ["dotnet", "Snai.CMS.Api_Core.dll"]
