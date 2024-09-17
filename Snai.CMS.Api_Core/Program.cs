@@ -24,7 +24,8 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("storage/logs/log-init-.log",
         rollingInterval: RollingInterval.Day, // 每天一个文档
-        retainedFileCountLimit: 24 * 30 // 最多保留 30 天的 Log 文档
+        //retainedFileCountLimit: 31 // 最多保留 31 个 Log 文档
+        retainedFileTimeLimit: TimeSpan.FromDays(31) //最多保留31天的Log文档
     )
     .CreateBootstrapLogger();
 try
