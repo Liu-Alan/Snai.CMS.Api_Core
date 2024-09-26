@@ -14,7 +14,7 @@ namespace Snai.CMS.Api_Core.Models
         public string? Page { get; set; }
 
         [ModelBinder(Name = "page_size")]
-        [PositiveInteger(ErrorMessage = "页码须为数字")]
+        [PositiveInteger(ErrorMessage = "每页数须为数字")]
         public string? PageSize { get; set; }
         
     }
