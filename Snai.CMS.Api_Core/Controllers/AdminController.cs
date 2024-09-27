@@ -18,12 +18,12 @@ namespace Snai.CMS.Api_Core.Controllers
     {
         #region 构造函数
 
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<AdminController> _logger;
         IOptions<WebSettings> _webSettings;
         Consts _consts;
         CMSBO _cmsBO;
 
-        public AdminController(ILogger<HomeController> logger, HttpContextExtension httpContext, IOptions<WebSettings> webSettings, JwtHelper jwtHelper, CMSBO cmsBO, Consts consts)
+        public AdminController(ILogger<AdminController> logger, HttpContextExtension httpContext, IOptions<WebSettings> webSettings, JwtHelper jwtHelper, CMSBO cmsBO, Consts consts)
         {
             _logger = logger;
             _webSettings = webSettings;

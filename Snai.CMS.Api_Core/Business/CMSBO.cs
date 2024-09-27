@@ -18,7 +18,7 @@ namespace Snai.CMS.Api_Core.Business
 
         IOptions<LogonSettings> _logonSettings;
         IOptions<WebSettings> _webSettings;
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<CMSBO> _logger;
         Consts _consts;
         CMSDao _cmsDao;
 
@@ -26,7 +26,7 @@ namespace Snai.CMS.Api_Core.Business
 
         #region 构造函数
 
-        public CMSBO(IOptions<LogonSettings> logonSettings, IOptions<WebSettings> webSettings, ILogger<HomeController> logger, Consts consts, CMSDao cmsDao)
+        public CMSBO(IOptions<LogonSettings> logonSettings, IOptions<WebSettings> webSettings, ILogger<CMSBO> logger, Consts consts, CMSDao cmsDao)
         {
             _logonSettings = logonSettings;
             _webSettings = webSettings;
